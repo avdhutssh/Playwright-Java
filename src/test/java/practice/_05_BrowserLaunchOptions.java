@@ -129,4 +129,26 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 5: Custom User Agent
+    // ========================================
+    @Test(priority = 5)
+    public void test_05_CustomUserAgent() {
+        logger.info("📌 TEST 5: Custom User Agent - Set custom UA string");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setUserAgent("MyTestBot/1.0 (Automated Testing)"));  // Custom user agent string
+
+        Page page = context.newPage();
+        String userAgent = (String) page.evaluate("() => navigator.userAgent");
+
+        Assert.assertTrue(userAgent.contains("MyTestBot"));
+
+        context.close();
+        browser.close();
+    }
 }

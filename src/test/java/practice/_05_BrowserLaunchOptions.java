@@ -322,4 +322,37 @@ public class _05_BrowserLaunchOptions {
             logger.warning("Chrome not installed, test skipped");
         }
     }
+
+    // ========================================
+    // TEST 12: Combined Configuration
+    // ========================================
+    @Test(priority = 12)
+    public void test_12_CombinedConfiguration() {
+        logger.info("📌 TEST 12: Combined Configuration - Multiple options together");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false)                    // Show browser UI
+                .setSlowMo(100)                        // Slow down by 100ms
+                .setArgs(Arrays.asList(
+                        "--window-size=1920,1080",     // Window size
+                        "--disable-notifications"      // Disable notifications
+                )));
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080)           // Viewport dimensions
+                .setDeviceScaleFactor(2)               // 2x pixel ratio
+                .setUserAgent("Custom Test Agent")     // Custom user agent
+                .setIgnoreHTTPSErrors(true)            // Ignore SSL errors
+                .setExtraHTTPHeaders(Map.of("X-Test", "true")));  // Custom headers
+
+        Page page = context.newPage();
+        page.navigate("https://example.com");
+
+        Assert.assertEquals(page.viewportSize().width, 1920);
+        Assert.assertEquals(page.viewportSize().height, 1080);
+
+        context.close();
+        browser.close();
+    }
 }
+

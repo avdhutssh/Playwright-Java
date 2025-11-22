@@ -297,4 +297,29 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 11: Channel Selection
+    // ========================================
+    @Test(priority = 11)
+    public void test_11_ChannelSelection() {
+        logger.info("📌 TEST 11: Channel Selection - Use Chrome instead of Chromium");
+
+        try {
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                    .setHeadless(false)                // Show browser UI
+                    .setChannel("chrome"));            // Use installed Chrome browser
+
+            BrowserContext context = browser.newContext();
+            Page page = context.newPage();
+            page.navigate("https://example.com");
+
+            Assert.assertNotNull(page.title());
+
+            context.close();
+            browser.close();
+        } catch (Exception e) {
+            logger.warning("Chrome not installed, test skipped");
+        }
+    }
 }

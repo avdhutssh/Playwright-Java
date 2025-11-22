@@ -58,4 +58,29 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 2: Browser Arguments
+    // ========================================
+    @Test(priority = 2)
+    public void test_02_BrowserArguments() {
+        logger.info("📌 TEST 2: Browser Arguments - Custom window size, maximize, disable notifications");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false)                    // Show browser UI
+                .setArgs(Arrays.asList(
+                        "--window-size=1280,720",      // Set initial window size
+                        "--start-maximized",           // Start browser maximized
+                        "--disable-notifications"      // Disable browser notifications
+                )));
+
+        BrowserContext context = browser.newContext();
+        Page page = context.newPage();
+        page.navigate("https://example.com");
+
+        Assert.assertNotNull(page.title());
+
+        context.close();
+        browser.close();
+    }
 }

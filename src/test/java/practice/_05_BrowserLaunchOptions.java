@@ -198,4 +198,28 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 8: Offline Mode
+    // ========================================
+    @Test(priority = 8)
+    public void test_08_OfflineMode() {
+        logger.info("📌 TEST 8: Offline Mode - Simulate no internet connection");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setOffline(true));                    // Enable offline mode
+
+        Page page = context.newPage();
+
+        Assert.assertThrows(Exception.class, () -> {
+            page.navigate("https://example.com", new Page.NavigateOptions().setTimeout(5000));
+        });
+
+
+        context.close();
+        browser.close();
+    }
 }

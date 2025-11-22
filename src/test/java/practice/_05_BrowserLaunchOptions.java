@@ -83,4 +83,27 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 3: Viewport Configuration
+    // ========================================
+    @Test(priority = 3)
+    public void test_03_ViewportConfiguration() {
+        logger.info("📌 TEST 3: Viewport Configuration - Custom viewport dimensions");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080));         // Set viewport width x height
+
+        Page page = context.newPage();
+        page.navigate("https://example.com");
+
+        Assert.assertEquals(page.viewportSize().width, 1920);
+        Assert.assertEquals(page.viewportSize().height, 1080);
+
+        context.close();
+        browser.close();
+    }
 }

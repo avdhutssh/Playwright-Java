@@ -151,4 +151,26 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 6: Ignore HTTPS Errors
+    // ========================================
+    @Test(priority = 6)
+    public void test_06_IgnoreHTTPSErrors() {
+        logger.info("📌 TEST 6: Ignore HTTPS Errors - Accept self-signed certificates");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setIgnoreHTTPSErrors(true));          // Ignore SSL/TLS certificate errors
+
+        Page page = context.newPage();
+        page.navigate("https://expired.badssl.com/");  // Site with expired certificate
+
+        Assert.assertNotNull(page.content());
+
+        context.close();
+        browser.close();
+    }
 }

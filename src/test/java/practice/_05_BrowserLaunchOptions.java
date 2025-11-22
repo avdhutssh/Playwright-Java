@@ -222,4 +222,49 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 9: Color Scheme (Dark Mode)
+    // ========================================
+    @Test(priority = 9)
+    public void test_09_ColorScheme() {
+        logger.info("📌 TEST 9: Color Scheme - Force dark mode preference");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));
+
+        BrowserContext darkContext = browser.newContext(new Browser.NewContextOptions()
+                .setColorScheme(ColorScheme.DARK));
+
+        Page darkPage = darkContext.newPage();
+
+        darkPage.navigate("https://developer.mozilla.org");
+        darkPage.waitForTimeout(3000);
+
+        String colorScheme = (String) darkPage.evaluate(
+                "() => window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'"
+        );
+
+        logger.info("Color scheme detected: " + colorScheme);
+        Assert.assertEquals(colorScheme, "dark");
+
+        darkContext.close();
+
+        BrowserContext lightContext = browser.newContext(new Browser.NewContextOptions()
+                .setColorScheme(ColorScheme.LIGHT));
+
+        Page lightPage = lightContext.newPage();
+        lightPage.navigate("https://developer.mozilla.org");
+        lightPage.waitForTimeout(3000);
+
+        String lightScheme = (String) lightPage.evaluate(
+                "() => window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'"
+        );
+
+        logger.info("Color scheme detected: " + lightScheme);
+        Assert.assertEquals(lightScheme, "light");
+
+        lightContext.close();
+        browser.close();
+    }
 }

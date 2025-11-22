@@ -267,4 +267,34 @@ public class _05_BrowserLaunchOptions {
         lightContext.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 10: CI/CD Optimized Configuration
+    // ========================================
+    @Test(priority = 10)
+    public void test_10_CICDConfiguration() {
+        logger.info("📌 TEST 10: CI/CD Configuration - Docker-friendly settings");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false)                    // Show browser UI (set true for CI)
+                .setArgs(Arrays.asList(
+                        "--no-sandbox",                // Required for Docker containers
+                        "--disable-gpu",               // Disable GPU hardware acceleration
+                        "--disable-dev-shm-usage",     // Overcome limited shared memory
+                        "--disable-setuid-sandbox",    // Additional sandboxing flag
+                        "--disable-extensions"         // Disable browser extensions
+                )));
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080)           // Standard viewport for CI
+                .setIgnoreHTTPSErrors(true));          // Ignore SSL errors in test env
+
+        Page page = context.newPage();
+        page.navigate("https://example.com");
+
+        Assert.assertNotNull(page.title());
+
+        context.close();
+        browser.close();
+    }
 }

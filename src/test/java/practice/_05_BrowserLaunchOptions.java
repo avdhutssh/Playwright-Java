@@ -106,4 +106,27 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 4: Device Scale Factor
+    // ========================================
+    @Test(priority = 4)
+    public void test_04_DeviceScaleFactor() {
+        logger.info("📌 TEST 4: Device Scale Factor - High-DPI rendering (Retina)");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080)           // Set viewport size
+                .setDeviceScaleFactor(2));             // Pixel ratio: 2x (Retina display)
+
+        Page page = context.newPage();
+        page.navigate("https://example.com");
+
+        Assert.assertNotNull(page.content());
+
+        context.close();
+        browser.close();
+    }
 }

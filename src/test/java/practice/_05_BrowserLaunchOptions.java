@@ -173,4 +173,29 @@ public class _05_BrowserLaunchOptions {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 7: Custom HTTP Headers
+    // ========================================
+    @Test(priority = 7)
+    public void test_07_CustomHTTPHeaders() {
+        logger.info("📌 TEST 7: Custom HTTP Headers - Add headers to all requests");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false));                  // Show browser UI
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setExtraHTTPHeaders(Map.of(           // Add custom HTTP headers
+                        "X-Custom-Header", "AvdhutDemo",
+                        "X-API-Key", "test-key-123"
+                )));
+
+        Page page = context.newPage();
+        page.navigate("https://httpbin.org/headers");
+
+        Assert.assertTrue(page.content().contains("AvdhutDemo"));
+
+        context.close();
+        browser.close();
+    }
 }

@@ -95,4 +95,74 @@ public class _06_CameraInjection {
         browser.close();
     }
 
+    // ========================================
+    // TEST 2: Camera Injection WITH Video File
+    // ========================================
+    @Test(priority = 2)
+    public void test_02_CameraWithFile() {
+        logger.info("📌 TEST 2: Camera Injection WITH Video File");
+
+        Path videoPath = Paths.get("src/test/resources/TestData/DemoCameraFile.y4m").toAbsolutePath();
+        logger.info("📂 Video file: " + videoPath);
+
+        // Launch browser with Y4M file as camera input
+        // Note: --use-fake-device-for-media-stream is REQUIRED to inject video file
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setHeadless(false)
+                .setArgs(Arrays.asList(
+                        "--use-fake-device-for-media-stream",            // Required: Enable fake camera
+                        "--use-fake-ui-for-media-stream",                // Skip permission prompts
+                        "--use-file-for-fake-video-capture=" + videoPath // Feed Y4M file to camera
+                )));
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setPermissions(Arrays.asList("camera", "microphone")));
+
+        Page page = context.newPage();
+
+        page.navigate("https://webcamtoy.com/");
+        page.waitForTimeout(2000);
+
+        page.locator("#button-init").click();
+
+        page.waitForTimeout(5000);
+
+        page.locator("#button-capture").click();
+        page.waitForTimeout(2000);
+
+        page.locator("#button-save").waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.VISIBLE)
+                .setTimeout(5000));
+
+        page.waitForTimeout(2000);
+
+        Path tempDir = Paths.get("src/test/resources/TestData/temp");
+        if (!tempDir.toFile().exists()) {
+            tempDir.toFile().mkdirs();
+            logger.info("📁 Created temp directory: " + tempDir);
+        }
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String fileName = "camera_feed_" + timestamp + ".png";
+        Path downloadPath = tempDir.resolve(fileName);
+
+        Download download = page.waitForDownload(() -> {
+            page.locator("#button-save").click();
+        });
+
+        download.saveAs(downloadPath);
+        logger.info("💾 Photo saved to: " + downloadPath);
+
+        if (downloadPath.toFile().exists() && downloadPath.toFile().length() > 0) {
+            logger.info("✅ Photo from Y4M video saved successfully!");
+            logger.info("📊 File size: " + downloadPath.toFile().length() + " bytes");
+        } else {
+            logger.warning("⚠️ Photo file not found or empty!");
+        }
+
+        page.waitForTimeout(2000);
+
+        context.close();
+        browser.close();
+    }
 }

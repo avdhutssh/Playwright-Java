@@ -324,11 +324,37 @@ public class _05_BrowserLaunchOptions {
     }
 
     // ========================================
-    // TEST 12: Combined Configuration
+    // TEST 12: Incognito Mode
     // ========================================
     @Test(priority = 12)
-    public void test_12_CombinedConfiguration() {
-        logger.info("📌 TEST 12: Combined Configuration - Multiple options together");
+    public void test_12_IncognitoMode() {
+        logger.info("📌 TEST 12: Incognito Mode - Isolated browser context");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setChannel("chrome")
+                .setHeadless(false)
+                .setArgs(Arrays.asList("--incognito"))
+        );
+        BrowserContext incognitoContext = browser.newContext();
+        Page page = incognitoContext.newPage();
+        page.navigate("https://example.com");
+        Assert.assertNotNull(page.title());
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        incognitoContext.close();
+        browser.close();
+    }
+
+    // ========================================
+    // TEST 13: Combined Configuration
+    // ========================================
+    @Test(priority = 13)
+    public void test_13_CombinedConfiguration() {
+        logger.info("📌 TEST 13: Combined Configuration - Multiple options together");
 
         Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                 .setHeadless(false)                    // Show browser UI

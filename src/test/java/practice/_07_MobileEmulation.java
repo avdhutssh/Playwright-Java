@@ -71,5 +71,50 @@ public class _07_MobileEmulation {
         browser.close();
     }
 
+    // ========================================
+    // TEST 2: Android-Samsung Galaxy Emulation
+    // ========================================
+    @Test(priority = 2)
+    public void test_02_Android_SamsungGalaxy() {
+        logger.info("📌 TEST 2: Samsung Galaxy S23 Ultra Emulation");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setChannel("chrome")
+                .setHeadless(false));
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(360, 800)        // Samsung Galaxy typical dimensions
+                .setDeviceScaleFactor(3)          // High DPI display (3x pixel ratio)
+                .setIsMobile(true)                // Enable mobile mode
+                .setHasTouch(true)                // Enable touch events
+                .setIgnoreHTTPSErrors(true)       // Ignore SSL certificate errors
+                .setUserAgent("Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"));
+
+        Page page = context.newPage();
+
+        logger.info("📱 Device: Samsung Galaxy S23 Ultra");
+        logger.info("📐 Viewport: 360 x 800");
+        logger.info("🎨 Device Scale Factor: 3x (AMOLED)");
+
+        page.navigate("https://www.whatismybrowser.com/");
+
+        Assert.assertEquals(page.viewportSize().width, 360);
+        Assert.assertEquals(page.viewportSize().height, 800);
+        logger.info("✅ Viewport verified: 360x800");
+
+        String deviceText = page.locator(".string-medium").first().textContent();
+        Assert.assertTrue(deviceText.contains("Samsung"), "Expected 'Samsung' but got: " + deviceText);
+        logger.info("✅ Device detected as: " + deviceText);
+
+        page.waitForTimeout(2000);
+
+        page.navigate("https://www.useragentstring.com/");
+        page.waitForTimeout(3000);
+
+        logger.info("✅ Samsung Galaxy emulation active");
+
+        context.close();
+        browser.close();
+    }
 }
 

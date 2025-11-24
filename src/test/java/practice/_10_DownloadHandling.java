@@ -66,4 +66,45 @@ public class _10_DownloadHandling {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 2: Download with Browser-Level Path (Auto-Save)
+    // ========================================
+    @Test(priority = 2)
+    public void test_02_BrowserLevelDownloadPath() {
+        logger.info("📌 TEST 2: Download with Browser-Level Path (Auto-Save)");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setChannel("chrome")
+                .setHeadless(false)
+                .setDownloadsPath(DOWNLOAD_DIR));       // Browser auto-saves downloads here
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setAcceptDownloads(true));
+
+        Page page = context.newPage();
+
+        page.navigate("https://the-internet.herokuapp.com/download");
+        page.waitForTimeout(2000);
+
+        Download download = page.waitForDownload(() -> {
+            page.locator("a[href*='.txt']").first().click();
+        });
+
+        // Get the path where browser automatically saved the file
+        Path autoSavedPath = download.path();
+        String originalFilename = download.suggestedFilename();
+
+        logger.info("💾 File auto-saved to: " + autoSavedPath);
+        logger.info("📄 Original filename: " + originalFilename);
+        
+        // Verify file exists at the browser-level download path
+        Assert.assertTrue(autoSavedPath.toFile().exists(), "Download file should exist");
+        Assert.assertTrue(autoSavedPath.toString().contains("temp"), 
+                "File should be in temp directory");
+        logger.info("✅ File size: " + autoSavedPath.toFile().length() + " bytes");
+
+        context.close();
+        browser.close();
+    }
 }

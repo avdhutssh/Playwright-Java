@@ -145,4 +145,53 @@ public class _10_DownloadHandling {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 4: Download with saveAs (Copy Behavior)
+    // ========================================
+    @Test(priority = 4)
+    public void test_04_DownloadWithSaveAs() {
+        logger.info("📌 TEST 4: Download with saveAs (Copy Behavior)");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setChannel("chrome")
+                .setHeadless(false));
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setAcceptDownloads(true));
+
+        Page page = context.newPage();
+
+        page.navigate("https://the-internet.herokuapp.com/download");
+        page.waitForTimeout(2000);
+
+        Download download = page.waitForDownload(() -> {
+            page.locator("a[href*='.txt']").first().click();
+        });
+
+        Path tempPath = download.path();
+        logger.info("📥 File initially downloaded to temp: " + tempPath);
+
+        String filename = "saved_" + System.currentTimeMillis() + ".txt";
+        Path finalPath = DOWNLOAD_DIR.resolve(filename);
+        download.saveAs(finalPath);
+
+        logger.info("📦 File saved to: " + finalPath);
+        logger.info("ℹ️  Note: saveAs() creates a COPY - temp file remains");
+        
+        Assert.assertTrue(finalPath.toFile().exists(), "File should exist at final location");
+        Assert.assertTrue(tempPath.toFile().exists(), "Temp file still exists (copy, not move)");
+        logger.info("✅ Final file size: " + finalPath.toFile().length() + " bytes");
+        logger.info("✅ Temp file size: " + tempPath.toFile().length() + " bytes");
+
+        logger.info("🧹 Closing context to trigger auto-cleanup...");
+        context.close();
+        browser.close();
+
+        logger.info("🔍 Verifying temp file cleanup...");
+        Assert.assertFalse(tempPath.toFile().exists(), "Temp file should be deleted after context closes");
+        Assert.assertTrue(finalPath.toFile().exists(), "Final file should still exist");
+        logger.info("✅ Temp file auto-cleaned by Playwright");
+        logger.info("✅ Final file persists at: " + finalPath);
+    }
 }

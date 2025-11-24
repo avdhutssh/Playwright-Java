@@ -107,4 +107,42 @@ public class _10_DownloadHandling {
         context.close();
         browser.close();
     }
+
+    // ========================================
+    // TEST 3: Download PNG with Browser-Level Path
+    // ========================================
+    @Test(priority = 3)
+    public void test_03_DownloadPNG_BrowserLevel() {
+        logger.info("📌 TEST 3: Download PNG with Browser-Level Path");
+
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                .setChannel("chrome")
+                .setHeadless(false)
+                .setDownloadsPath(DOWNLOAD_DIR));       // Browser auto-saves PNG here
+
+        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                .setAcceptDownloads(true));
+
+        Page page = context.newPage();
+
+        page.navigate("https://the-internet.herokuapp.com/download");
+        page.waitForTimeout(2000);
+
+        Download download = page.waitForDownload(() -> {
+            page.locator("a[href$='.png']").first().click();
+        });
+
+        Path autoSavedPath = download.path();
+        String originalFilename = download.suggestedFilename();
+
+        logger.info("💾 PNG auto-saved to: " + autoSavedPath);
+        logger.info("📄 Filename: " + originalFilename);
+        
+        Assert.assertTrue(autoSavedPath.toFile().exists(), "Download file should exist");
+        Assert.assertTrue(originalFilename.endsWith(".png"), "Should be a PNG file");
+        logger.info("✅ File size: " + autoSavedPath.toFile().length() + " bytes");
+
+        context.close();
+        browser.close();
+    }
 }
